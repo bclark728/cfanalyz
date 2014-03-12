@@ -43,7 +43,7 @@ def dictify(L):
    for k in j[1:]:
     ret[name]['donors'][k[0]]={};
     for l in k[1:]:
-     ret[name]['donors'][k[0]]['address']=l[0];
+     ret[name]['donors'][k[0]]['address']=l[0].strip();
      ret[name]['donors'][k[0]]['donations']=mineferbucks(l[1:]);
      # NOTE: this is currently broken because it does not deal with
      #       balance entries.
@@ -89,7 +89,6 @@ values = recursivesplit(content, splitters);
 data = dictify(values);
 
 #dump as json package to output file
-
 output = open(sys.argv[2], 'w');
 json.dump(data, output);
 output.close();
