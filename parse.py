@@ -15,9 +15,14 @@ def recursivesplit(content, L):
   values.append(recursivesplit(p,L[1:]));
  return values;
 
+# this currently loses some data like in kind vs cash
+
 def mineferbucks(L):
+ # this is a little hacky, but it flags balance entries
+ balflag="</span></div> </td> </tr>";
+
  if(type(L) is str):
-  if('$' in L):
+  if(('$' in L) and (balflag not in L)):
    return [L];
   else:
    return [];
@@ -45,8 +50,6 @@ def dictify(L):
     for l in k[1:]:
      ret[name]['donors'][k[0]]['address']=l[0].strip();
      ret[name]['donors'][k[0]]['donations']=mineferbucks(l[1:]);
-     # NOTE: this is currently broken because it does not deal with
-     #       balance entries.
  return ret;
 
 ##
@@ -72,11 +75,14 @@ offc_str = "</span><span class=\"officename\">";
 dnrs_str = "</span></b></td> </tr> <tr class=\"paged\"> <td class=\"body\"></td> </tr>";
 name_str = "<tr class=\"paged\"> <td class=\"body\"> <div class=\"sub\"><span class=\"name\" style=\"\">";
 addr_str = "</span><span class=\"address\">";
-date_str = "</span><span class=\"purposecode\"></span><span class=\"date\">";
+purp_str = "</span><span class=\"purposecode\">";
+date_str = "</span><span class=\"date\">";
 amnt_str = "</span><span class=\"money\">";
+type_str = "</span><span class=\"type\">";
 end_str  = "</span>";
-splitters = [cand_str, prty_str, offc_str, dnrs_str, name_str, \
-             addr_str, date_str, amnt_str, end_str];
+splitters = [cand_str, prty_str, offc_str, dnrs_str, name_str, 
+             addr_str, purp_str, date_str, amnt_str, type_str,  
+	     end_str];
 
 #preprocess by cutting out header
 content = cand_str.join(content.split(cand_str)[1:]);
@@ -92,3 +98,5 @@ data = dictify(values);
 output = open(sys.argv[2], 'w');
 json.dump(data, output);
 output.close();
+
+pp.pprint(data);
