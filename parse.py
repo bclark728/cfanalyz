@@ -15,6 +15,9 @@ def recursivesplit(content, L):
   values.append(recursivesplit(p,L[1:]));
  return values;
 
+def dollars2float(s):
+ return float(''.join(''.join(s.split(',')).split('$')));
+
 # this currently loses some data like in kind vs cash
 
 def mineferbucks(L):
@@ -23,7 +26,7 @@ def mineferbucks(L):
 
  if(type(L) is str):
   if(('$' in L) and (balflag not in L)):
-   return [L];
+   return [dollars2float(L)];
   else:
    return [];
  elif(type(L) is list):
