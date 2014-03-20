@@ -23,7 +23,7 @@
         width: 120px;
       }
 
-      #pichart {
+      #piechart {
         height: 190px;
 	width:  190px;
 	padding: 0px;
@@ -55,11 +55,14 @@ function initialize() {
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
   var selector = document.getElementById('candidate');
-  for(candidate in data) {
+  var names = Object.keys(data);
+  console.log("unsorted: " + names);
+  names.sort();
+  console.log("sorted: " + names);
+  for(n in names) {
     var el = document.createElement("option");
-    console.log(candidate);
-    el.text = candidate;
-    el.value = candidate;
+    el.text = names[n];
+    el.value = names[n];
     selector.appendChild(el);
   }
 }
@@ -68,27 +71,31 @@ var addresses;
 var circles = [];
 
 function populateMap() {
-  console.log("populateMap() called");
+  //console.log("populateMap() called");
   clearMap();
+
   addresses = Object();
   var candidate = document.getElementById("candidate");
   var name = candidate.options[candidate.selectedIndex].text;
   
   var donors = data[name]["donors"];
 
-  console.log(donors);
+  //console.log(donors);
 
   for(var donor in donors) {
     var address = donors[donor]["address"];
-    if(!(address in addresses)) {
-      addresses[address] = 0;
-    }
-    for(var donation in donors[donor]["donations"]) {
-      addresses[address] += donors[donor]["donations"][donation];
+    // exclude self-donations ERROR: not currently exlcuding all
+    if(donor != name) {
+      if(!(address in addresses)) {
+	addresses[address] = 0;
+      }
+      for(var donation in donors[donor]["donations"]) {
+	addresses[address] += donors[donor]["donations"][donation];
+      }
     }
   }
 
-  console.log(addresses);
+  //console.log(addresses);
 
   // draw funding balance pie chart
   inOut = calcBalance(addresses);
@@ -133,7 +140,7 @@ var nextAddress = 0;
 
 function mapDonation(map, address, amount, next) {
   geocoder.geocode( { 'address': address}, function(results, status) {
-    console.log(address + " = " + addresses[address]);
+    //console.log(address + " = " + addresses[address]);
     if (status == google.maps.GeocoderStatus.OK) {
       var options = {
 	strokeColor: '#FF0000',
@@ -146,7 +153,7 @@ function mapDonation(map, address, amount, next) {
 	radius: amount * 200
       };
       // Add the circle for this city to the map.
-      console.log("adding circle");
+      // console.log("adding circle");
       circle = new google.maps.Circle(options);
       circles.push(circle);
     } else {
@@ -154,7 +161,7 @@ function mapDonation(map, address, amount, next) {
       if(status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
 	nextAddress--;
 	delay++;
-	console.log("delay = " + delay);
+	//console.log("delay = " + delay);
       } else {
         console.log("ERROR: " + status);
       }
@@ -169,7 +176,6 @@ function theNext() {
       setTimeout('mapDonation(map, "'+key+'", '+addresses[key]+', theNext)', delay);
       nextAddress++;
     } else {
-      return;
     }
 }
 
@@ -179,6 +185,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
   </head>
   <body>
     <div id="input-panel">
+      <div id="spinner"></div>
       <p><em> WARNING: This is not ready for primetime. Data has not been fully verified, and resulting map should not be considered an accurate deptiction of actual donation patterns at this time.</em></p>
       <form id="options">
         <span> Candidate: </span>
