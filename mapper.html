@@ -166,11 +166,17 @@ function mapDonation(map, address, amount, next) {
   geocoder.geocode( { 'address': address}, function(results, status) {
     //console.log(address + " = " + addresses[address]);
     if (status == google.maps.GeocoderStatus.OK) {
+      var color;
+      if(address.indexOf('ID') != -1) {
+        color = "#0000ff";
+      } else {
+        color = "#ff0000";
+      }
       var options = {
-	strokeColor: '#FF0000',
+	strokeColor: color,
 	strokeOpacity: 0.8,
 	strokeWeight: 0,
-	fillColor: '#FF0000',
+	fillColor: color,
 	fillOpacity: 0.35,
 	map: map,
 	center: new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()),
